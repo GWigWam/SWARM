@@ -1,6 +1,12 @@
 import * as PIXI from 'pixi.js';
 
-const app = new PIXI.Application({ antialias: true });
+const app = new PIXI.Application({
+    antialias: true,
+    transparent: false,
+    width: document.body.clientWidth - 30,
+    height: document.body.clientHeight - 30,
+});
+
 document.body.appendChild(app.view);
 
 const graphics = new PIXI.Graphics();
