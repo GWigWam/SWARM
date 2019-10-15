@@ -1,4 +1,5 @@
 const path = require('path');
+const webpackLiveReload = require('webpack-livereload-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -18,5 +19,8 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-  }
+  },
+  plugins: [
+    new webpackLiveReload()
+  ]
 };
