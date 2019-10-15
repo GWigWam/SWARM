@@ -1,7 +1,4 @@
-interface Point {
-    x: number,
-    y: number
-}
+import Point from './point';
 
 class Shape implements Point {
     x: number = 0;
@@ -35,17 +32,6 @@ class Shape implements Point {
         }
         return new Shape(ps);
     }
-}
-
-import { Graphics, Point as PixiPoint } from 'pixi.js';
-declare module 'pixi.js' {
-    export interface Graphics {
-        drawPolyShape(shape: Shape): void;
-    }
-}
-
-Graphics.prototype.drawPolyShape = function(shape: Shape) {
-    this.drawPolygon(shape.renderPoly().map(p => new PixiPoint(p.x, p.y)));
 }
 
 export default Shape;
