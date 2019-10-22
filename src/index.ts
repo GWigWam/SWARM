@@ -1,4 +1,6 @@
 import * as PIXI from 'pixi.js';
+import { Graphics } from './pixiExtensions';
+import World from './world';
 
 const app = new PIXI.Application({
     antialias: true,
@@ -6,27 +8,19 @@ const app = new PIXI.Application({
     width: document.body.clientWidth - 30,
     height: document.body.clientHeight - 30,
 });
-
 document.body.appendChild(app.view);
 
-const graphics = new PIXI.Graphics();
-
-// draw a shape
-graphics.beginFill(0xFF3300);
-graphics.lineStyle(4, 0xffd900, 1);
-graphics.moveTo(50, 350);
-graphics.lineTo(250, 350);
-graphics.lineTo(100, 400);
-graphics.lineTo(50, 350);
-graphics.closePath();
-graphics.endFill();
-
-// draw polygon
-const path = [600, 370, 700, 460, 780, 420, 730, 570, 590, 520];
-
-graphics.lineStyle(0);
-graphics.beginFill(0x3500FA, 1);
-graphics.drawPolygon(path);
-graphics.endFill();
-
+const graphics = new Graphics();
 app.stage.addChild(graphics);
+
+const world = new World(app.view.width, app.view.height);
+
+app.ticker.add(() => {
+    const elapsedSec = app.ticker.elapsedMS / 1000;    
+    world.update(elapsedSec);
+    
+    graphics.clear();
+    for(let g of world.getGraphics()) {
+        graphics.drawGraphic(g);
+    }
+});
