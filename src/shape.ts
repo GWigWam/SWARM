@@ -16,7 +16,12 @@ class Shape implements Point {
         return this._a * (180 / Math.PI);
     }
 
-    constructor(public shape: Point[]) { }
+    constructor(public shape: Point[], pos: Point|null = null) {
+        if(pos) {
+            this.x = pos.x;
+            this.y = pos.y;
+        }
+    }
 
     renderPoly = (): Point[] =>
         this.shape.map(p => {
@@ -25,12 +30,12 @@ class Shape implements Point {
             return { x, y };
         });
 
-    static fromNrs(... points: number[]): Shape {
+    static fromNrs(pos: Point, ... points: number[]): Shape {
         const ps: Point[] = [];
         for(let i = 0; i < points.length; i+=2) {
             ps.push({ x: points[i], y: points[i + 1] });
         }
-        return new Shape(ps);
+        return new Shape(ps, pos);
     }
 }
 
