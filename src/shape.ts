@@ -1,4 +1,5 @@
 import Point from './point';
+import Angle from './angle';
 
 class Shape implements Point {
     x: number = 0;
@@ -9,8 +10,7 @@ class Shape implements Point {
         return this._a;
     }
     set angle(v: number) {
-        v %= (Math.PI * 2);
-        this._a = v > 0 ? v : (v + 2 * Math.PI);
+        this._a = Angle.normalize(v);
     }
     get angleDeg(): number {
         return this._a * (180 / Math.PI);
