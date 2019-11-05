@@ -1,5 +1,5 @@
 import Point from './point';
-import Angle from './angle';
+import Geom from './geom';
 
 class Shape implements Point {
     x: number = 0;
@@ -10,7 +10,7 @@ class Shape implements Point {
         return this._a;
     }
     set angle(v: number) {
-        this._a = Angle.normalize(v);
+        this._a = Geom.Angle.normalize(v);
     }
     get angleDeg(): number {
         return this._a * (180 / Math.PI);

@@ -1,6 +1,6 @@
 import { Drawable } from './drawing';
 import Shape from './shape';
-import Angle from './angle';
+import Geom from "./geom";
 
 export default abstract class Entity implements Drawable {
         
@@ -21,7 +21,7 @@ export default abstract class Entity implements Drawable {
 
     protected turn(targetAngle: number, turnRate: number, timeSec: number): void {
         const maxTurn = turnRate * timeSec;
-        const delta = Angle.dist(this.position.angle, targetAngle);
+        const delta = Geom.Angle.dist(this.position.angle, targetAngle);
 
         if(Math.abs(delta) > maxTurn) {
             this.position.angle += maxTurn * (delta > 0 ? 1 : -1);
