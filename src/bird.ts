@@ -7,7 +7,12 @@ import Geom from "./geom";
 const _shape = [20, 0, -15, 10, 0, 0, -15, -10] as number[];
 const _color = 0xBB2222;
 const _speed = 150;
-const _turnRate = (Geom.TAU) * 0.5;
+const _turnRate = (Geom.TAU) * 0.65;
+
+interface BirdDistance {
+    entity: Entity;
+    dist: number;
+}
 
 export default class Bird extends Entity {
     
@@ -22,8 +27,12 @@ export default class Bird extends Entity {
     }
 
     private update_angle(timeSec: number): void {
-        let target =
-            this.avoidWall();
+        const close = this.closeBirds();
+
+        let target = this.avoidWall();
+        if(target == null) {
+            target = this.avoidBirds(close);
+        }
         
         if(target != null) {
             this.turn(target, _turnRate, timeSec)
@@ -80,5 +89,34 @@ export default class Bird extends Entity {
         }
 
         return null;
+    }
+
+    private avoidBirds(close: BirdDistance[]): number|null {
+        const minDist = 35;
+        if(close.length > 0) {
+            const closest = close[0];
+            if(closest.dist <= minDist) {
+                const da = Geom.Point.getAngle(this.position, closest.entity.position);
+
+                // Do not avoid birds behind you
+                if(Math.abs(Geom.Angle.dist(this.position.angle, da)) > Geom.HALF_PI) {
+                    return null;
+                }
+
+                const r0 = da + Math.PI * 0.51;
+                const r1 = da - Math.PI * 0.51;
+                const res = Math.abs(Geom.Angle.dist(this.position.angle, r0)) < Math.abs(Geom.Angle.dist(this.position.angle, r1)) ? r0 : r1;
+                return res;
+            }
+        }
+
+        return null;
+    }
+
+    private closeBirds(): BirdDistance[] {
+        return this.world.entities
+            .filter(e => e != this)
+            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
+            .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);
     }
 }
