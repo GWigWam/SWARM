@@ -8,7 +8,9 @@ export default abstract class Entity implements Drawable {
 
     abstract update(timeSec: number): void;
 
-    getGraphics = () => [{ color: this.color, shape: this.position.renderPoly() }];
+    public getGraphics() {
+        return [{ color: this.color, shape: this.position.renderPoly() }];
+    }
 
     protected move_bySpeed(speed: number, timeSec: number): void {
         this.move_byDist(speed * timeSec);
