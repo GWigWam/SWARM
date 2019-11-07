@@ -20,6 +20,13 @@ class PointGeom {
     dist(p1: Point, p2: Point): number {
         return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
     }
+
+    /** Get angle of pTo relative to pFrom */
+    getAngle(pFrom: Point, pTo: Point) {
+        const dY = pFrom.y - pTo.y;
+        const dX = pTo.x - pFrom.x;
+        return Math.atan2(dY, dX);
+    }
 }
 
 export default class Geom {
