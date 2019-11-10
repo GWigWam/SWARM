@@ -4,10 +4,10 @@ import Point from "./point";
 import World from "./world";
 import Geom from "./geom";
 
-const _shape = [20, 0, -15, 10, 0, 0, -15, -10] as number[];
+const _shape = [15, 0, -11, 8, 0, 0, -11, -8] as number[];
 const _color = 0xBB2222;
-const _speed = 150;
-const _turnRate = (Geom.TAU) * 0.65;
+const _speed = 200;
+const _turnRate = (Geom.TAU) * 1.0;
 
 interface BirdDistance {
     entity: Entity;
@@ -33,15 +33,18 @@ export default class Bird extends Entity {
         if(target == null) {
             target = this.avoidBirds(close);
         }
-        
+        if(target == null) {
+            target = this.swarm(close);
+        }
+
         if(target != null) {
             this.turn(target, _turnRate, timeSec)
         }
     }
 
     private avoidWall(): number|null {
-        const avoidDist = 100;
-        const bounceDist = 20;
+        const avoidDist = 80;
+        const bounceDist = 16;
         const a = this.position.angle;
 
         const bounce =
@@ -92,7 +95,7 @@ export default class Bird extends Entity {
     }
 
     private avoidBirds(close: BirdDistance[]): number|null {
-        const minDist = 35;
+        const minDist = 30;
         if(close.length > 0) {
             const closest = close[0];
             if(closest.dist <= minDist) {
@@ -107,6 +110,29 @@ export default class Bird extends Entity {
                 const r1 = da - Math.PI * 0.51;
                 const res = Math.abs(Geom.Angle.dist(this.position.angle, r0)) < Math.abs(Geom.Angle.dist(this.position.angle, r1)) ? r0 : r1;
                 return res;
+            }
+        }
+
+        return null;
+    }
+
+    private swarm(close: BirdDistance[]): number|null {
+        const groupSize = 65;
+
+        close = close.filter(d => d.dist <= groupSize);
+        if(close.length > 0) {
+            const centreOfMass = close
+                .map(d => d.entity.position)
+                .reduce((acc, cur) => ({ x: acc.x + (cur.x / close.length), y: acc.y + (cur.y / close.length) }), { x: 0, y: 0})
+            const distToCentre = Geom.Point.dist(this.position, centreOfMass);
+
+            if(distToCentre > groupSize * 0.5) { // Move closer to group
+                const res = Geom.Point.getAngle(this.position, centreOfMass);
+                return res;
+            } else { // Align with group
+                const avgAngle = close
+                    .reduce((acc, cur) => acc + (cur.entity.position.angle / close.length), 0);
+                return avgAngle;
             }
         }
 
