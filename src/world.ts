@@ -19,10 +19,13 @@ export default class World implements Drawable {
         }
     }
 
-    getGraphics = (): Graphic[] =>
-        this.entities
-            .map(e => e.getGraphics())
-            .reduce((acc, cur) => acc.concat(cur));
+    public *getGraphics() {
+        for(let gs of this.entities.map(e => e.getGraphics())) {
+             for(let g of gs) {
+                 yield g;
+             }
+        }
+    }
 
     private *seed(birdCnt: number) {
         const margin = 10;

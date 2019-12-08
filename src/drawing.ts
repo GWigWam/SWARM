@@ -6,7 +6,7 @@ interface Graphic {
 }
 
 interface Drawable {
-    getGraphics(): Graphic[];
+    getGraphics(): Iterable<Graphic>
 }
 
 export { Graphic, Drawable };

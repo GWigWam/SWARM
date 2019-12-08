@@ -15,7 +15,9 @@ Graphics.prototype.drawGraphic = function(graphic) {
 }
 
 Graphics.prototype.drawDrawable = function(drawable) {
-    drawable.getGraphics().forEach(g => this.drawGraphic(g));
+    for(let g of drawable.getGraphics()) {
+        this.drawGraphic(g);
+    }
 }
 
 export { Graphics };
