@@ -7,12 +7,15 @@ export default class World implements Drawable {
     entities: Entity[];
 
     constructor(public width: number, public height: number) {
-        this.entities = [ ... this.seed(100) ];
+        this.entities = [ ... this.seed(200) ];
     }
 
     update(timeSec: number) {
         for(let ent of this.entities) {
             ent.update(timeSec);
+
+            ent.position.x = ((ent.position.x + this.width) % this.width);
+            ent.position.y = ((ent.position.y + this.height) % this.height);
         }
     }
 

@@ -9,6 +9,9 @@ const _color = 0xBB2222;
 const _speed = 200;
 const _turnRate = (Geom.TAU) * 1.0;
 
+const avoidDist = 40;
+const groupDist = 60;
+
 interface BirdDistance {
     entity: Entity;
     dist: number;
@@ -29,10 +32,7 @@ export default class Bird extends Entity {
     private update_angle(timeSec: number): void {
         const close = this.closeBirds();
 
-        let target = this.avoidWall();
-        if(target == null) {
-            target = this.avoidBirds(close);
-        }
+        let target = this.avoidBirds(close);
         if(target == null) {
             target = this.swarm(close);
         }
@@ -42,63 +42,10 @@ export default class Bird extends Entity {
         }
     }
 
-    private avoidWall(): number|null {
-        const avoidDist = 80;
-        const bounceDist = 16;
-        const a = this.position.angle;
-
-        const bounce =
-            this.position.y < bounceDist ? Math.PI * 1.5 : // TOP
-            (this.world.width - this.position.x) < bounceDist ? Math.PI : // RIGHT
-            (this.world.height - this.position.y) < bounceDist ? Math.PI * 0.5 : // BOT
-            this.position.x < bounceDist ? 0 : // LEFT
-                null;
-        if(bounce != null) { return bounce; }
-
-        if(a > 0 && a < Math.PI) { // TOP
-            const x = this.position.x - Math.tan(a - (Math.PI * 0.5)) * this.position.y;
-            if(x > 0 && x < this.world.width) {
-                if(Geom.Point.dist(this.position, { x, y: 0 }) < avoidDist) {
-                    return Math.PI * 1.5;
-                }
-            }
-        }
-
-        if(a < Geom.HALF_PI || a > Math.PI * 1.5) { // RIGHT
-            const y = this.position.y - Math.tan(a) * (this.world.width - this.position.x);
-            if(y > 0 && y < this.world.height) {
-                if(Geom.Point.dist(this.position, { x: this.world.width, y }) < avoidDist) {
-                    return Math.PI;
-                }
-            }
-        }
-
-        if(a > Math.PI) { // BOT
-            const x = this.position.x - Math.tan(a - (Math.PI * 1.5)) * (this.world.height - this.position.y);
-            if(x > 0 && x < this.world.width) {
-                if(Geom.Point.dist(this.position, { x, y: this.world.height }) < avoidDist) {
-                    return Geom.HALF_PI;
-                }
-            }
-        }
-
-        if(a > Geom.HALF_PI && a < Math.PI * 1.5) { // LEFT
-            const y = this.position.y + Math.tan(a) * this.position.x;
-            if(y > 0 && y < this.world.height) {
-                if(Geom.Point.dist(this.position, { x: 0, y }) < avoidDist) {
-                    return 0;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private avoidBirds(close: BirdDistance[]): number|null {
-        const minDist = 30;
         if(close.length > 0) {
             const closest = close[0];
-            if(closest.dist <= minDist) {
+            if(closest.dist <= avoidDist) {
                 const da = Geom.Point.getAngle(this.position, closest.entity.position);
 
                 // Do not avoid birds behind you
@@ -117,16 +64,14 @@ export default class Bird extends Entity {
     }
 
     private swarm(close: BirdDistance[]): number|null {
-        const groupSize = 65;
-
-        close = close.filter(d => d.dist <= groupSize);
+        close = close.filter(d => d.dist <= groupDist);
         if(close.length > 0) {
             const centreOfMass = close
                 .map(d => d.entity.position)
                 .reduce((acc, cur) => ({ x: acc.x + (cur.x / close.length), y: acc.y + (cur.y / close.length) }), { x: 0, y: 0})
             const distToCentre = Geom.Point.dist(this.position, centreOfMass);
 
-            if(distToCentre > groupSize * 0.5) { // Move closer to group
+            if(distToCentre > groupDist * 0.5) { // Move closer to group
                 const res = Geom.Point.getAngle(this.position, centreOfMass);
                 return res;
             } else { // Align with group
