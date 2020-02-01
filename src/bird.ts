@@ -11,6 +11,7 @@ const _turnRate = (Geom.TAU) * 1.0;
 
 const avoidDist = 40;
 const groupDist = 60;
+const avoidBOPDist = 125;
 
 interface BirdDistance {
     entity: Entity;
@@ -19,6 +20,8 @@ interface BirdDistance {
 
 export default class Bird extends Entity {
     
+    public readonly entityType = 'Bird';
+
     constructor(public world: World, pos: Point, angle: number|null = null) {
         super(Shape.fromNrs(pos, ... _shape), _color);
         this.position.angle = angle || 0;
@@ -32,7 +35,10 @@ export default class Bird extends Entity {
     private update_angle(timeSec: number): void {
         const close = this.closeBirds();
 
-        let target = this.avoidBirds(close);
+        let target = this.avoidPredators();
+        if(target == null) {
+            target = this.avoidBirds(close);
+        }
         if(target == null) {
             target = this.swarm(close);
         }
@@ -40,6 +46,21 @@ export default class Bird extends Entity {
         if(target != null) {
             this.turn(target, _turnRate, timeSec)
         }
+    }
+
+    private avoidPredators(): number|null {
+        const bops = this.world.entities
+            .filter(e => e.entityType == 'BirdOfPrey')
+            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
+            .filter(m => m.dist <= avoidBOPDist)
+            .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);
+        if(bops.length > 0)
+        {
+            const bop = bops[0];
+            const a = Geom.Point.getAngle(this.position, bop.entity.position);
+            return a + Math.PI;
+        }
+        return null;
     }
 
     private avoidBirds(close: BirdDistance[]): number|null {
@@ -86,6 +107,7 @@ export default class Bird extends Entity {
 
     private closeBirds(): BirdDistance[] {
         return this.world.entities
+            .filter(e => e.entityType == this.entityType)
             .filter(e => e != this)
             .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
             .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);

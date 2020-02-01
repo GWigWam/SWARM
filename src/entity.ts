@@ -2,8 +2,12 @@ import { Drawable } from './drawing';
 import Shape from './shape';
 import Geom from "./geom";
 
+export type EntityType = 'Bird' | 'BirdOfPrey';
+
 export default abstract class Entity implements Drawable {
-        
+    
+    public abstract readonly entityType: EntityType;
+
     constructor(public position: Shape, public color: number) { }
 
     abstract update(timeSec: number): void;

@@ -1,6 +1,7 @@
 import { Drawable, Graphic } from './drawing';
 import Entity from './entity';
 import Bird from './bird';
+import BirdOfPrey from './birdOfPrey';
 
 export default class World implements Drawable {
 
@@ -35,5 +36,7 @@ export default class World implements Drawable {
             const a = Math.random() * Math.PI * 2;
             yield new Bird(this, {x, y}, a);
         }
+
+        yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 });
     }    
 }
