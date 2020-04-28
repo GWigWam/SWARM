@@ -9,13 +9,26 @@
 
     <body style="margin:0px; height: 100%;">
         <div id="display"></div>
+        <div id="settings"></div>
 
         <script src="dist/bundle.js"></script>
 
         <style>
             #display {
-                width: 95%;
+                position: fixed;
+                width: 90%;
                 height: 95%;
+            }
+            #settings {
+                position: fixed;
+                width: 10%;
+                height: 95%;
+                right: 0;
+                background: #EEE;
+                padding: 0 2pt;
+            }
+            .setting {
+                margin: 0 0 5pt 0;
             }
         </style>
     </body>

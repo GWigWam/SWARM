@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { Graphics } from './pixiExtensions';
 import World from './world';
+import Settings from "./settings";
 
 window.onload = () => {
     const elem = document.getElementById('display')!;    
@@ -27,4 +28,23 @@ window.onload = () => {
             graphics.drawGraphic(g);
         }
     });
+
+    const settingsElem = document.getElementById('settings')!;
+    for(let setting of Settings.all) {
+        const div = document.createElement("div");
+        div.className = "setting";
+
+        const lab = document.createElement("span");
+        lab.innerText = setting.key;
+        div.appendChild(lab);
+
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.value = `${setting.value}`;
+        inp.onchange = () => setting.value = Number.parseInt(inp.value);
+        setting.watch(n => inp.value = `${n}`)
+        div.appendChild(inp);
+
+        settingsElem.appendChild(div);
+    }
 };

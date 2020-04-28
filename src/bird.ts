@@ -3,20 +3,21 @@ import Shape from "./shape";
 import Point from "./point";
 import World from "./world";
 import Geom from "./geom";
+import Settings from "./settings"
 
 const _shape = [15, 0, -11, 8, 0, 0, -11, -8] as number[];
 const _color = 0xBB2222;
-const _speed = 200;
 const _turnRate = (Geom.TAU) * 1.0;
-
-const avoidDist = 40;
-const groupDist = 60;
-const avoidBOPDist = 125;
 
 interface BirdDistance {
     entity: Entity;
     dist: number;
 }
+
+const speed = Settings.add('bird_speed', 200);
+const avoidDist = Settings.add('bird_avoidDist', 40);
+const groupDist = Settings.add('bird_groupDist', 60);
+const avoidBOPDist = Settings.add('bird_avoidBOPDist', 125);
 
 export default class Bird extends Entity {
     
@@ -29,7 +30,7 @@ export default class Bird extends Entity {
 
     update(timeSec: number): void {
         this.update_angle(timeSec);
-        this.move_bySpeed(_speed, timeSec);
+        this.move_bySpeed(speed.value, timeSec);
     }
 
     private update_angle(timeSec: number): void {
@@ -52,7 +53,7 @@ export default class Bird extends Entity {
         const bops = this.world.entities
             .filter(e => e.entityType == 'BirdOfPrey')
             .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
-            .filter(m => m.dist <= avoidBOPDist)
+            .filter(m => m.dist <= avoidBOPDist.value)
             .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);
         if(bops.length > 0)
         {
@@ -66,7 +67,7 @@ export default class Bird extends Entity {
     private avoidBirds(close: BirdDistance[]): number|null {
         if(close.length > 0) {
             const closest = close[0];
-            if(closest.dist <= avoidDist) {
+            if(closest.dist <= avoidDist.value) {
                 const da = Geom.Point.getAngle(this.position, closest.entity.position);
 
                 // Do not avoid birds behind you
@@ -85,14 +86,14 @@ export default class Bird extends Entity {
     }
 
     private swarm(close: BirdDistance[]): number|null {
-        close = close.filter(d => d.dist <= groupDist);
+        close = close.filter(d => d.dist <= groupDist.value);
         if(close.length > 0) {
             const centreOfMass = close
                 .map(d => d.entity.position)
                 .reduce((acc, cur) => ({ x: acc.x + (cur.x / close.length), y: acc.y + (cur.y / close.length) }), { x: 0, y: 0})
             const distToCentre = Geom.Point.dist(this.position, centreOfMass);
 
-            if(distToCentre > groupDist * 0.5) { // Move closer to group
+            if(distToCentre > groupDist.value * 0.5) { // Move closer to group
                 const res = Geom.Point.getAngle(this.position, centreOfMass);
                 return res;
             } else { // Align with group
