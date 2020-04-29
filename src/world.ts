@@ -4,8 +4,8 @@ import Bird from './bird';
 import BirdOfPrey from './birdOfPrey';
 import Settings from "./settings";
 
-const no_birds = Settings.add('world_no_birds', 200);
-const no_bops = Settings.add('world_no_bops', 1);
+const no_birds = Settings.add('world_no_birds', 250);
+const no_bops = Settings.add('world_no_bops', 3);
 
 export default class World implements Drawable {
 
@@ -48,7 +48,7 @@ export default class World implements Drawable {
         }
 
         for(let i = 0; i < no_bops.value; i++) {
-            yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 });
+            yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 }, Math.random() * Math.PI * 2);
         }
     }    
 }

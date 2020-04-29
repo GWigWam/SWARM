@@ -5,7 +5,7 @@ import World from "./world";
 import Geom from "./geom";
 import Settings from "./settings"
 
-const _shape = [15, 0, -11, 8, 0, 0, -11, -8] as number[];
+const _shape = [7, 0, -5, 4, 0, 0, -5, -4] as number[];
 const _color = 0xBB2222;
 const _turnRate = (Geom.TAU) * 1.0;
 
@@ -14,10 +14,10 @@ interface BirdDistance {
     dist: number;
 }
 
-const speed = Settings.add('bird_speed', 350);
-const avoidDist = Settings.add('bird_avoidDist', 50);
-const groupDist = Settings.add('bird_groupDist', 90);
-const avoidBOPDist = Settings.add('bird_avoidBOPDist', 150);
+const speed = Settings.add('bird_speed', 200);
+const avoidDist = Settings.add('bird_avoidDist', 15);
+const groupDist = Settings.add('bird_groupDist', 50);
+const avoidBOPDist = Settings.add('bird_avoidBOPDist', 75);
 
 export default class Bird extends Entity {
     

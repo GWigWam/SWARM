@@ -5,13 +5,13 @@ import World from "./world";
 import Geom from "./geom";
 import Settings from "./settings";
 
-const _shape = [20, 0, -15, 18, -5, 5, -10, 0, -5, -5, -15, -18] as number[];
+const _shape = [10, 0, -7, 9, -2, 2, -5, 0, -2, -2, -7, -9] as number[];
 const _color = 0x692300;
 const _turnRate = (Geom.TAU) * 0.2;
 
 const randomAngleChangesPerSecond = 1 / 4;
 
-const speed = Settings.add('bop_speed', 300);
+const speed = Settings.add('bop_speed', 175);
 
 export default class BirdOfPrey extends Entity {
 
