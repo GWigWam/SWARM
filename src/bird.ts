@@ -14,10 +14,10 @@ interface BirdDistance {
     dist: number;
 }
 
-const speed = Settings.add('bird_speed', 200);
-const avoidDist = Settings.add('bird_avoidDist', 40);
-const groupDist = Settings.add('bird_groupDist', 60);
-const avoidBOPDist = Settings.add('bird_avoidBOPDist', 125);
+const speed = Settings.add('bird_speed', 350);
+const avoidDist = Settings.add('bird_avoidDist', 50);
+const groupDist = Settings.add('bird_groupDist', 90);
+const avoidBOPDist = Settings.add('bird_avoidBOPDist', 150);
 
 export default class Bird extends Entity {
     

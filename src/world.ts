@@ -1,14 +1,20 @@
-import { Drawable, Graphic } from './drawing';
+import { Drawable } from './drawing';
 import Entity from './entity';
 import Bird from './bird';
 import BirdOfPrey from './birdOfPrey';
+import Settings from "./settings";
+
+const no_birds = Settings.add('world_no_birds', 200);
+const no_bops = Settings.add('world_no_bops', 1);
 
 export default class World implements Drawable {
 
-    entities: Entity[];
+    entities = [] as Entity[];
 
     constructor(public width: number, public height: number) {
-        this.entities = [ ... this.seed(200) ];
+        this.init();
+        no_birds.watch(_ => this.init());
+        no_bops.watch(_ => this.init());
     }
 
     update(timeSec: number) {
@@ -28,15 +34,21 @@ export default class World implements Drawable {
         }
     }
 
-    private *seed(birdCnt: number) {
+    private init() {
+        this.entities = [ ... this.seed() ];
+    }
+
+    private *seed() {
         const margin = 10;
-        for(let i = 0; i < birdCnt; i++) {
+        for(let i = 0; i < no_birds.value; i++) {
             const x = Math.random() * (this.width - (margin * 2)) + margin;
             const y = Math.random() * (this.height - (margin * 2)) + margin;
             const a = Math.random() * Math.PI * 2;
             yield new Bird(this, {x, y}, a);
         }
 
-        yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 });
+        for(let i = 0; i < no_bops.value; i++) {
+            yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 });
+        }
     }    
 }
