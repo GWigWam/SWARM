@@ -65,24 +65,28 @@ export default class Bird extends Entity {
     }
 
     private avoidBirds(close: BirdDistance[]): number|null {
-        if(close.length > 0) {
-            const closest = close[0];
-            if(closest.dist <= avoidDist.value) {
-                const da = Geom.Point.getAngle(this.position, closest.entity.position);
+        const avoidBird = (avoid: BirdDistance) => {
+            const da = Geom.Point.getAngle(this.position, avoid.entity.position);
 
-                // Do not avoid birds behind you
-                if(Math.abs(Geom.Angle.dist(this.position.angle, da)) > Geom.HALF_PI) {
-                    return null;
-                }
-
-                const r0 = da + Math.PI * 0.51;
-                const r1 = da - Math.PI * 0.51;
-                const res = Math.abs(Geom.Angle.dist(this.position.angle, r0)) < Math.abs(Geom.Angle.dist(this.position.angle, r1)) ? r0 : r1;
-                return res;
+            // Do not avoid birds behind you
+            if(Math.abs(Geom.Angle.dist(this.position.angle, da)) > Geom.HALF_PI) {
+                return null;
             }
+
+            const r0 = da + Math.PI * 0.51;
+            const r1 = da - Math.PI * 0.51;
+            const res = Math.abs(Geom.Angle.dist(this.position.angle, r0)) < Math.abs(Geom.Angle.dist(this.position.angle, r1)) ? r0 : r1;
+            return res;
         }
 
-        return null;
+        return close
+            .filter(d => d.dist <= avoidDist.value)
+            .map(avoidBird)
+            .reduce((p, c) =>
+                p != null ?
+                    c != null ? p + c : p :
+                    c != null ? c : null,
+                null);
     }
 
     private swarm(close: BirdDistance[]): number|null {
