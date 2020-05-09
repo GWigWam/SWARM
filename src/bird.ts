@@ -114,7 +114,6 @@ export default class Bird extends Entity {
         return this.world.entities
             .filter(e => e.entityType == this.entityType)
             .filter(e => e != this)
-            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
-            .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);
+            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }));
     }
 }
