@@ -39,16 +39,17 @@ export default class World implements Drawable {
     }
 
     private *seed() {
+        let id = 0;
         const margin = 10;
         for(let i = 0; i < no_birds.value; i++) {
             const x = Math.random() * (this.width - (margin * 2)) + margin;
             const y = Math.random() * (this.height - (margin * 2)) + margin;
             const a = Math.random() * Math.PI * 2;
-            yield new Bird(this, {x, y}, a);
+            yield new Bird(this, {x, y}, a, id++);
         }
 
         for(let i = 0; i < no_bops.value; i++) {
-            yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 }, Math.random() * Math.PI * 2);
+            yield new BirdOfPrey(this, { x: this.width / 2, y: this.height / 2 }, Math.random() * Math.PI * 2, id++);
         }
     }    
 }

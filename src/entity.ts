@@ -8,7 +8,7 @@ export default abstract class Entity implements Drawable {
     
     public abstract readonly entityType: EntityType;
 
-    constructor(public position: Shape, public color: number) { }
+    constructor(public position: Shape, public color: number, public readonly id : number) { }
 
     abstract update(timeSec: number): void;
 

@@ -23,8 +23,8 @@ export default class Bird extends Entity {
     
     public readonly entityType = 'Bird';
 
-    constructor(public world: World, pos: Point, angle: number|null = null) {
-        super(Shape.fromNrs(pos, ... _shape), _color);
+    constructor(public world: World, pos: Point, angle: number|null = null, id: number) {
+        super(Shape.fromNrs(pos, ... _shape), _color, id);
         this.position.angle = angle || 0;
     }
 

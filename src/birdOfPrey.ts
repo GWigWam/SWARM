@@ -19,8 +19,8 @@ export default class BirdOfPrey extends Entity {
 
     private targetAngle: number = 0;
 
-    constructor(public world: World, pos: Point, angle: number|null = null) {
-        super(Shape.fromNrs(pos, ... _shape), _color);
+    constructor(public world: World, pos: Point, angle: number|null = null, id: number) {
+        super(Shape.fromNrs(pos, ... _shape), _color, id);
         this.targetAngle = this.position.angle = angle || 0;
     }
 
