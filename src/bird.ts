@@ -34,13 +34,10 @@ export default class Bird extends Entity {
     }
 
     private update_angle(timeSec: number, distances: EntityDistance[]): void {
-        let target = this.avoidPredators(distances);
-        if(target == null) {
-            target = this.avoidBirds(distances);
-        }
-        if(target == null) {
-            target = this.swarm(distances);
-        }
+        let target =
+            this.avoidPredators(distances) ??
+            this.avoidBirds(distances) ??
+            this.swarm(distances);
 
         if(target != null) {
             this.turn(target, _turnRate, timeSec)
