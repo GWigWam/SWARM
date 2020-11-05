@@ -2,17 +2,13 @@ import Entity from "./entity";
 import Shape from "./shape";
 import Point from "./point";
 import World from "./world";
+import { EntityDistance } from "./world";
 import Geom from "./geom";
 import Settings from "./settings"
 
 const _shape = [7, 0, -5, 4, 0, 0, -5, -4] as number[];
 const _color = 0xBB2222;
 const _turnRate = (Geom.TAU) * 1.0;
-
-interface BirdDistance {
-    entity: Entity;
-    dist: number;
-}
 
 const speed = Settings.add('bird_speed', 200);
 const avoidDist = Settings.add('bird_avoidDist', 15);
@@ -22,6 +18,7 @@ const avoidBOPDist = Settings.add('bird_avoidBOPDist', 75);
 export default class Bird extends Entity {
     
     public readonly entityType = 'Bird';
+    private distances = null as null|EntityDistance[];
 
     constructor(public world: World, pos: Point, angle: number|null = null, id: number) {
         super(Shape.fromNrs(pos, ... _shape), _color, id);
@@ -29,19 +26,20 @@ export default class Bird extends Entity {
     }
 
     update(timeSec: number): void {
-        this.update_angle(timeSec);
+        if(this.distances == null) {
+            this.distances = this.world.getDistances(this);
+        }
+        this.update_angle(timeSec, this.distances);
         this.move_bySpeed(speed.value, timeSec);
     }
 
-    private update_angle(timeSec: number): void {
-        const close = this.closeBirds();
-
-        let target = this.avoidPredators();
+    private update_angle(timeSec: number, distances: EntityDistance[]): void {
+        let target = this.avoidPredators(distances);
         if(target == null) {
-            target = this.avoidBirds(close);
+            target = this.avoidBirds(distances);
         }
         if(target == null) {
-            target = this.swarm(close);
+            target = this.swarm(distances);
         }
 
         if(target != null) {
@@ -49,10 +47,9 @@ export default class Bird extends Entity {
         }
     }
 
-    private avoidPredators(): number|null {
-        const bops = this.world.entities
-            .filter(e => e.entityType == 'BirdOfPrey')
-            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }))
+    private avoidPredators(distances: EntityDistance[]): number|null {
+        const bops = distances
+            .filter(e => e.entity.entityType == 'BirdOfPrey')
             .filter(m => m.dist <= avoidBOPDist.value)
             .sort((e1, e2) => e1.dist <= e2.dist ? -1 : 1);
         if(bops.length > 0)
@@ -64,8 +61,8 @@ export default class Bird extends Entity {
         return null;
     }
 
-    private avoidBirds(close: BirdDistance[]): number|null {
-        const avoidBird = (avoid: BirdDistance) => {
+    private avoidBirds(distances: EntityDistance[]): number|null {
+        const avoidBird = (avoid: EntityDistance) => {
             const da = Geom.Point.getAngle(this.position, avoid.entity.position);
 
             // Do not avoid birds behind you
@@ -79,8 +76,11 @@ export default class Bird extends Entity {
             return res;
         }
 
-        return close
-            .filter(d => d.dist <= avoidDist.value)
+        return distances
+            .filter(d =>
+                d.entity.entityType == this.entityType &&
+                d.entity != this &&
+                d.dist <= avoidDist.value)
             .map(avoidBird)
             .reduce((p, c) =>
                 p != null ?
@@ -89,31 +89,27 @@ export default class Bird extends Entity {
                 null);
     }
 
-    private swarm(close: BirdDistance[]): number|null {
-        close = close.filter(d => d.dist <= groupDist.value);
-        if(close.length > 0) {
-            const centreOfMass = close
+    private swarm(distances: EntityDistance[]): number|null {
+        distances = distances.filter(d =>
+            d.entity.entityType == this.entityType &&
+            d.entity != this &&
+            d.dist <= groupDist.value);
+        if(distances.length > 0) {
+            const centreOfMass = distances
                 .map(d => d.entity.position)
-                .reduce((acc, cur) => ({ x: acc.x + (cur.x / close.length), y: acc.y + (cur.y / close.length) }), { x: 0, y: 0})
+                .reduce((acc, cur) => ({ x: acc.x + (cur.x / distances.length), y: acc.y + (cur.y / distances.length) }), { x: 0, y: 0})
             const distToCentre = Geom.Point.dist(this.position, centreOfMass);
 
             if(distToCentre > groupDist.value * 0.5) { // Move closer to group
                 const res = Geom.Point.getAngle(this.position, centreOfMass);
                 return res;
             } else { // Align with group
-                const avgAngle = close
-                    .reduce((acc, cur) => acc + (cur.entity.position.angle / close.length), 0);
+                const avgAngle = distances
+                    .reduce((acc, cur) => acc + (cur.entity.position.angle / distances.length), 0);
                 return avgAngle;
             }
         }
 
         return null;
-    }
-
-    private closeBirds(): BirdDistance[] {
-        return this.world.entities
-            .filter(e => e.entityType == this.entityType)
-            .filter(e => e != this)
-            .map(e => ({ entity: e, dist: Geom.Point.dist(e.position, this.position) }));
     }
 }
