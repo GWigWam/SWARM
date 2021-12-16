@@ -2,7 +2,7 @@ import Entity from "./entity";
 import Shape from "./shape";
 import Point from "./point";
 import World from "./world";
-import { EntityDistance } from "./world";
+import EntityDistance from "./dists/entityDistance";
 import Geom from "./geom";
 import Settings from "./settings"
 
@@ -18,7 +18,6 @@ const avoidBOPDist = Settings.add('bird_avoidBOPDist', 75);
 export default class Bird extends Entity {
     
     public readonly entityType = 'Bird';
-    private distances = null as null|EntityDistance[];
 
     constructor(public world: World, pos: Point, angle: number|null = null, id: number) {
         super(Shape.fromNrs(pos, ... _shape), _color, id);
@@ -26,10 +25,8 @@ export default class Bird extends Entity {
     }
 
     update(timeSec: number): void {
-        if(this.distances == null) {
-            this.distances = this.world.getDistances(this);
-        }
-        this.update_angle(timeSec, this.distances);
+        const distances = [ ...this.world.distanceProvider.getNearbyEntityDistances(this, Math.max(avoidDist.value, groupDist.value, avoidBOPDist.value)) ]
+        this.update_angle(timeSec, distances);
         this.move_bySpeed(speed.value, timeSec);
     }
 
@@ -94,7 +91,7 @@ export default class Bird extends Entity {
         if(distances.length > 0) {
             const centreOfMass = distances
                 .map(d => d.entity.position)
-                .reduce((acc, cur) => ({ x: acc.x + (cur.x / distances.length), y: acc.y + (cur.y / distances.length) }), { x: 0, y: 0})
+                .reduce((acc, cur) => ({ x: acc.x + (cur.x / distances.length), y: acc.y + (cur.y / distances.length) }), { x: 0, y: 0 })
             const distToCentre = Geom.Point.dist(this.position, centreOfMass);
 
             if(distToCentre > groupDist.value * 0.5) { // Move closer to group

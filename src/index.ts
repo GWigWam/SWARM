@@ -4,7 +4,9 @@ import World from './world';
 import Settings from "./settings";
 
 window.onload = () => {
-    const elem = document.getElementById('display')!;    
+    const elem = document.getElementById('display')!;
+    const settingsElem = document.getElementById('settings')!;
+
     const app = new PIXI.Application({
         antialias: true,
         transparent: false,
@@ -20,7 +22,7 @@ window.onload = () => {
     const world = new World(app.view.width, app.view.height);
     
     app.ticker.add(() => {
-        const elapsedSec = app.ticker.elapsedMS / 1000;    
+        const elapsedSec = app.ticker.elapsedMS / 1000;
         world.update(elapsedSec);
         
         graphics.clear();
@@ -29,7 +31,6 @@ window.onload = () => {
         }
     });
 
-    const settingsElem = document.getElementById('settings')!;
     for(let setting of Settings.all) {
         const div = document.createElement("div");
         div.className = "setting";
