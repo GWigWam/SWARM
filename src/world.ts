@@ -6,6 +6,7 @@ import Settings from "./settings";
 import DistanceProvider from './dists/distanceProvider';
 import CachedDistanceProvider from './dists/cachedDistanceProvider';
 import SimpleDistanceProvider from './dists/simpleDistanceProvider';
+import GridDistanceProvider from './dists/gridDistanceProvider';
 
 const no_birds = Settings.add('world_no_birds', 250);
 const no_bops = Settings.add('world_no_bops', 3);
@@ -16,7 +17,7 @@ export default class World implements Drawable {
     distanceProvider: DistanceProvider;
 
     constructor(public width: number, public height: number) {
-        this.distanceProvider = new CachedDistanceProvider(this); //new SimpleDistanceProvider(this);
+        this.distanceProvider = new GridDistanceProvider(this, Math.round(Math.min(width, height) / 20));
         this.init();
         no_birds.watch(_ => this.init());
         no_bops.watch(_ => this.init());
